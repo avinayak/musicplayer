@@ -28,7 +28,7 @@ public class VLCEngine {
             }
         }
         tvlc = new ThreadedVLC(file);
-        tp = new Thread(tvlc, "VLCThreaded Thread1");
+        tp = new Thread(tvlc, "VLC Thread");
 
     }
 
