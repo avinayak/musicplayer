@@ -51,24 +51,15 @@ public class MusicEngine {
         audioPlayer.setMediaTime(a);
 
     }
-
-    void stop() {
-        audioPlayer.stop();
-        audioPlayer.setMediaTime(new Time(0.0));
-        
-    }
-
-    int getMusicDuration() {
-        return (int) currentSongDuration;
-
-    }
-
     int getElapsedTime() {
         return (int) audioPlayer.getMediaTime().getSeconds();
     }
 
-    int getState() {
-        return audioPlayer.getState();
+     boolean State() {
+        if(audioPlayer.getState()==500)
+               return true;
+        else
+            return false;
     }
     
 }
