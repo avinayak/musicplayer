@@ -7,8 +7,6 @@ artist varchar(50),
 genre varchar(50),
 duration varchar(10));
 
---increase size of name next time
-
 CREATE TABLE files(
 id number(6) primary key,
 file varchar(50));
