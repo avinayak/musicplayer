@@ -8,14 +8,11 @@ package musicplayer;
  *
  * @author gene
  */
-
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 
 public class VLCEngine {
 
-    static int length;
-    static int elapsed=0;
     ThreadedVLC tvlc;
     Thread tp;
 
@@ -24,7 +21,6 @@ public class VLCEngine {
             if (tp.isAlive()) {
                 tvlc.setPlay = 3;
                 tp.join();
-
             }
         }
         tvlc = new ThreadedVLC(file);
@@ -33,7 +29,9 @@ public class VLCEngine {
     }
 
     void play() throws InterruptedException {
-        tp.start();
+        if (!tp.isAlive()) {
+            tp.start();
+        }
         tvlc.setPlay = 1;
     }
 
@@ -42,28 +40,19 @@ public class VLCEngine {
     }
 
     void seek(int sec) {
-    }
-
-    int getMusicDuration() {
-//System.out.println(length);
-        return 200;
+        tvlc.mp.setTime(sec * 1000);
+        tvlc.elapsed = sec;
     }
 
     int getElapsedTime() {
-        //return 1;
-        return 50;
-        //System.out.println(elapsed);
-        //return elapsed;
+        tvlc.setPlay = 6;
+        return tvlc.elapsed;
     }
 
     boolean State() {
         return tvlc.state;
     }
 
-    int getCompletedPerc() {
-        return 25;//(int)(tvlc.mp.getPosition()*100);
-
-    }
 }
 
 class ThreadedVLC implements Runnable {
@@ -71,20 +60,20 @@ class ThreadedVLC implements Runnable {
     private AudioMediaPlayerComponent audioPlayer;
     MediaPlayer mp = null;
     String currentFile;
-    boolean state = false;
+    boolean state = true;
     int setPlay = 4;
+    int length = 200;
+    int elapsed = 0;
 
     public ThreadedVLC(String File) {
         audioPlayer = new AudioMediaPlayerComponent() {
             @Override
             public void finished(MediaPlayer mediaPlayer) {
-                System.exit(0);
+                System.out.println("ERRF");;
             }
 
             @Override
             public void error(MediaPlayer mediaPlayer) {
-
-                System.exit(0);
                 System.out.println("ERROR MF");
             }
         };
@@ -92,16 +81,15 @@ class ThreadedVLC implements Runnable {
 
         currentFile = File;
         mp.prepareMedia(currentFile);
-        VLCEngine.length = (int)(mp.getLength()/1000);
-        VLCEngine.elapsed = 0;
-      
+        //mp.play();
+        length = 400;
     }
 
     @Override
     public void run() {
         while (true) {
-            VLCEngine.elapsed = (int) (mp.getTime() / 1000);
-                 
+
+
             if (setPlay == 1) {
                 mp.play();
                 setPlay = 4;
@@ -112,11 +100,20 @@ class ThreadedVLC implements Runnable {
                 setPlay = 4;
                 state = true;
             }
+            if (setPlay == 5) {
+                length = (int) (mp.getLength() / 1000);
+                setPlay = 4;
+            }
+            if (setPlay == 6) {
+                elapsed = (int) (mp.getTime() / 1000);
+                setPlay = 4;
+            }
             if (setPlay == 3) {
                 mp.stop();
                 state = false;
                 break;
             }
+
         }
 
     }
