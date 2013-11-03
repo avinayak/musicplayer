@@ -67,10 +67,8 @@ class ThreadedVLC implements Runnable {
 
     public ThreadedVLC(String File) {
         audioPlayer = new AudioMediaPlayerComponent() {
-            @Override
-            public void finished(MediaPlayer mediaPlayer) {
-                System.out.println("ERRF");;
-            }
+    
+           
 
             @Override
             public void error(MediaPlayer mediaPlayer) {
