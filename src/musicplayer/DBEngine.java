@@ -46,13 +46,16 @@ public class DBEngine {
     public void searchLibrary(String q) throws SQLException {
 
 
-        pstLibrarySearch = conn.prepareStatement("select * from music where title like '%" + q + "%' or album like '%" + q + "%' or artist like '%" + q + "%';");
+        pstLibrarySearch = conn.prepareStatement("select * from music where title like '%"
+                + q + "%' or album like '%"
+                + q + "%' or artist like '%"
+                + q + "%';");
         rsLibrarySearch = pstLibrarySearch.executeQuery();
 
 
     }
 
-    public void writeLibrary(int id, String title, String album, String artist,String genre, String duration, String file) throws SQLException {
+    public void writeLibrary(int id, String title, String album, String artist, String genre, String duration, String file) throws SQLException {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
@@ -65,9 +68,16 @@ public class DBEngine {
         stLibraryWrite = lconn.createStatement();
         String sql;
 
-        sql = "INSERT INTO music VALUES(" + id + ",'" + title.replace("'", "") + "','" + album.replace("'", "") + "','" + artist.replace("'", "") + "','" + genre.replace("'", "")+ "','" + duration + "');";
+        sql = "INSERT INTO music VALUES("
+                + id + ",'" + title.replace("'", "") + "','"
+                + album.replace("'", "") + "','"
+                + artist.replace("'", "") + "','"
+                + genre.replace("'", "") + "','"
+                + duration + "');";
         stLibraryWrite.executeUpdate(sql);
-        sql = "INSERT INTO files VALUES(" + id + ",'" + file.replace("'", "") + "');";
+        sql = "INSERT INTO files VALUES("
+                + id + ",'"
+                + file.replace("'", "") + "');";
         stLibraryWrite.executeUpdate(sql);
         stLibraryWrite.close();
         lconn.close();
@@ -88,10 +98,19 @@ public class DBEngine {
         stQueueWrite = lconn.createStatement();
         String sql;
         try {
-            if(!artist.equals(""))
-                sql = "INSERT INTO queue VALUES(" + id + ",'<html><body>" + title.replace("'", "") + " <br>from <i>" + album.replace("'", "") + "<br></i>by <i>" + artist.replace("'", "") + "</i></body></html>');";
-            else
-                 sql = "INSERT INTO queue VALUES(" + id + ",'<html><body>" + title.replace("'", "") + " <br>from <i>" + album.replace("'", "") + "<br></body></html>');";
+            if (!artist.equals("")) {
+                sql = "INSERT INTO queue VALUES("
+                        + id + ",'<html><body>"
+                        + title.replace("'", "") + " <br>from <i>"
+                        + album.replace("'", "") + "<br></i>by <i>"
+                        + artist.replace("'", "") + "</i></body></html>');";
+            } else {
+                sql = "INSERT INTO queue VALUES("
+                        + id + ",'<html><body>"
+                        + title.replace("'", "") + " <br>from <i>"
+                        + album.replace("'", "") + "<br></body></html>');";
+            }
+
             stQueueWrite.executeUpdate(sql);
             stQueueWrite.close();
         } catch (java.sql.SQLException e) {
@@ -181,6 +200,26 @@ public class DBEngine {
         stFileRead.close();
         lconn.close();
         return album;
+    }
+
+    public int getLength(int id) throws SQLException {
+        Connection lconn = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+
+        } catch (ClassNotFoundException | SQLException e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.exit(0);
+        }
+        stFileRead = lconn.createStatement();
+        String sql = "SELECT duration from music where id=" + id + ";";
+        rsFileRead = stFileRead.executeQuery(sql);
+        String dur = rsFileRead.getString("duration");
+        int time = Integer.parseInt(dur.split(":")[0]) * 60 + Integer.parseInt(dur.split(":")[1]);
+        stFileRead.close();
+        lconn.close();
+        return time;
     }
 
     public void popQueue(int id) throws SQLException {
