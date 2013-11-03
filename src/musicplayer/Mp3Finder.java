@@ -17,7 +17,7 @@ public class Mp3Finder {
         public ArrayList<String> fileList;
 
         Finder() {
-            matcher = FileSystems.getDefault().getPathMatcher("glob:*.mp3");
+            matcher = FileSystems.getDefault().getPathMatcher("glob:*.[Mm][Pp]3");
             
             fileList = new ArrayList<>();
         }
