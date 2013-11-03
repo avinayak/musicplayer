@@ -31,11 +31,14 @@ public class UI extends javax.swing.JFrame {
     Timer t1;
     DBEngine dbengine;
     VLCEngine me;
-    Random r;
+    Random r;                           //r..randomnumbergenerator used for shuffle
     int toBePoppedNext;
     int randnext;
     int next;
-    Stack<Integer> historyStack;
+    Stack<Integer> historyStack;        //Used for Previous
+    int nowPlayingID = 1;
+    int currentSongDuration;
+    int elapsed;
 
     private void LibraryUpdate() {
         try {
@@ -77,17 +80,19 @@ public class UI extends javax.swing.JFrame {
         dbengine.readQueue();
         UpdateQueue();
         LibraryUpdate();
-        me.load(dbengine.getFile(Integer.parseInt(libraryTable.getValueAt(0, 0).toString())));//what does the fox say? pippipi cik chikawaawa
+        me.load(dbengine.getFile(Integer.parseInt(libraryTable.getValueAt(0, 0).toString())));
+        nowPlayingID = 1;
         r = new Random();
         initMediaControls();
-        
-        next=0;
+
+        next = 0;
         toBePoppedNext = -1;
         randnext = 0;
     }
 
     void musicChangeOver(int trackid) throws SQLException, InterruptedException {
         try {
+            nowPlayingID = trackid;
             me.load(dbengine.getFile(trackid));
             historyStack.push(trackid);
             initMediaControls();
@@ -97,18 +102,19 @@ public class UI extends javax.swing.JFrame {
         }
 
         trackNameLabel.setText(dbengine.getTitle(trackid));
-        if(! dbengine.getArtist(trackid).equals(""))
+        if (!dbengine.getArtist(trackid).equals("")) {
             artistalbumLabel.setText(dbengine.getAlbum(trackid) + " by " + dbengine.getArtist(trackid));
-        else
-            artistalbumLabel.setText(dbengine.getAlbum(trackid) );
+        } else {
+            artistalbumLabel.setText(dbengine.getAlbum(trackid));
+        }
         t1.start();
     }
 
     void playFinallybyCheckingShuffleRepeat() throws SQLException, InterruptedException {
         if (shuffleButton.isSelected() && queueTable.getRowCount() > 1) {
-          
-                randnext = r.nextInt(queueTable.getRowCount() - 1);
-   
+
+            randnext = r.nextInt(queueTable.getRowCount() - 1);
+
             if (!repeatButton.isSelected() && toBePoppedNext != -1) {
                 dbengine.popQueue(Integer.parseInt(queueTable.getValueAt(toBePoppedNext, 0).toString()));
                 UpdateQueue();
@@ -128,15 +134,16 @@ public class UI extends javax.swing.JFrame {
         }
     }
 
-    private void initMediaControls() {
-        int currentSongDuration;
+    private void initMediaControls() throws SQLException {
 
-        currentSongDuration = me.getMusicDuration();
-        seekBar.setMaximum(me.getMusicDuration());
+
+        //currentSongDuration = me.getMusicDuration();
+        currentSongDuration = dbengine.getLength(nowPlayingID);
+        seekBar.setMaximum(currentSongDuration);
         actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                int elapsed = me.getElapsedTime();
+
                 String label = "";
                 if (elapsed / 60 < 10) {
                     label += "0";
@@ -149,34 +156,29 @@ public class UI extends javax.swing.JFrame {
                 label += elapsed % 60;
 
                 timeElapsedLabel.setText(label);
-                seekBar.setValue(me.getCompletedPerc());
-
-                if (elapsed > me.getMusicDuration() - 2) {
+                seekBar.setValue(elapsed);
+                elapsed = me.getElapsedTime();
+                if (elapsed > currentSongDuration - 2) {
                     try {
                         seekBar.setValue(0);
                         timeElapsedLabel.setText("00:00");
                         playButton.setLabel("Pause");
                         playFinallybyCheckingShuffleRepeat();
                         me.play();
-                    } catch (SQLException ex) {
+                    } catch (            SQLException | InterruptedException ex) {
                         Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (ArrayIndexOutOfBoundsException e) {
                         try {
-                            if(!shuffleButton.isSelected())
-                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next++,0).toString()));
-                else
-                {
-                    next=r.nextInt(libraryTable.getRowCount()-1);
-                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next,0).toString()));
-                }
-                        } catch (SQLException ex) {
-                            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (InterruptedException ex) {
+                            if (!shuffleButton.isSelected()) {
+                                musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next++, 0).toString()));
+                            } else {
+                                next = r.nextInt(libraryTable.getRowCount() - 1);
+                                musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next, 0).toString()));
+                            }
+                        } catch (SQLException | InterruptedException ex) {
                             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                         }
 
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 if (me.State()) {
@@ -191,7 +193,7 @@ public class UI extends javax.swing.JFrame {
 
             }
         };
-        t1 = new Timer(100, actionListener);
+        t1 = new Timer(200, actionListener);
     }
 
     /**
@@ -457,7 +459,7 @@ public class UI extends javax.swing.JFrame {
         libraryTable.getColumnModel().getColumn(1).setResizable(false);
         libraryTable.getColumnModel().getColumn(2).setResizable(false);
 
-        trackNameLabel.setFont(new java.awt.Font("Cantarell", 1, 16)); // NOI18N
+        trackNameLabel.setFont(new java.awt.Font("Cantarell", 1, 17)); // NOI18N
 
         artistalbumLabel.setFont(new java.awt.Font("Cantarell", 2, 11)); // NOI18N
 
@@ -641,12 +643,12 @@ public class UI extends javax.swing.JFrame {
                         .addComponent(repeatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(previousButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(trackNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(trackNameLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(artistalbumLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(seekBar, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(timeElapsedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 27, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -664,7 +666,7 @@ public class UI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(albumartLabel))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 562, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(42, Short.MAX_VALUE))
+                .addContainerGap(50, Short.MAX_VALUE))
         );
 
         bindingGroup.bind();
@@ -676,24 +678,23 @@ public class UI extends javax.swing.JFrame {
 
         try {
             playFinallybyCheckingShuffleRepeat();
-        } catch (SQLException ex) {
+        } catch (SQLException | InterruptedException ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ArrayIndexOutOfBoundsException e) {
             try {
-                if(!shuffleButton.isSelected())
-                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next++,0).toString()));
-                else
-                {
-                    next=r.nextInt(libraryTable.getRowCount()-1);
-                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next,0).toString()));
+                if (!shuffleButton.isSelected()) {
+                    if(next==libraryTable.getRowCount()-1)
+                        next=0;
+                    else
+                        next++;
+                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next, 0).toString()));
+                } else {
+                    next = r.nextInt(libraryTable.getRowCount() - 1);
+                    musicChangeOver(Integer.parseInt(libraryTable.getValueAt(next, 0).toString()));
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
+            } catch (SQLException | InterruptedException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_nextButtonActionPerformed
@@ -714,16 +715,18 @@ public class UI extends javax.swing.JFrame {
     }//GEN-LAST:event_oslMenuItemActionPerformed
 
     private void seekBarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_seekBarMouseClicked
-             boolean initState = me.State();
+        boolean initState = me.State();
         if (initState) {
             playButton.setLabel("Play");
         } else {
             playButton.setLabel("Pause");
         }
         double val = 100 * evt.getX() / seekBar.getWidth();
-        //seekBar.setValue(((int) (me.getMusicDuration() * val) / 100));
-        seekBar.setValue(me.getCompletedPerc());
-        me.seek((int) ((me.getMusicDuration() * val) / 100));
+        // seekBar.setValue(((int) (me.getMusicDuration() * val) / 100));
+        me.seek((int) ((currentSongDuration * val) / 100));
+        seekBar.setValue(((int) (currentSongDuration * val) / 100));
+        elapsed = (int) ((currentSongDuration * val) / 100);
+
     }//GEN-LAST:event_seekBarMouseClicked
 
     private void seekBarMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_seekBarMouseDragged
@@ -734,10 +737,9 @@ public class UI extends javax.swing.JFrame {
             playButton.setLabel("Pause");
         }
         double val = 100 * evt.getX() / seekBar.getWidth();
-        //seekBar.setValue(((int) (me.getMusicDuration() * val) / 100));
-        seekBar.setValue(me.getCompletedPerc());
-        me.seek((int) ((me.getMusicDuration() * val) / 100));
-
+        me.seek((int) ((currentSongDuration * val) / 100));
+        seekBar.setValue(((int) (currentSongDuration * val) / 100));
+        elapsed = (int) ((currentSongDuration * val) / 100);
     }//GEN-LAST:event_seekBarMouseDragged
 
     private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
@@ -755,19 +757,15 @@ public class UI extends javax.swing.JFrame {
                     toBePoppedNext = 0;
                 }
 
-            } catch (SQLException ex) {
+            } catch (SQLException | InterruptedException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
                 try {
 
                     musicChangeOver(Integer.parseInt(libraryTable.getValueAt(0, 0).toString()));//what does the fox say? change this ti the first playable song!
-                } catch (SQLException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
+                } catch (SQLException | InterruptedException ex) {
                     Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (InterruptedException ex) {
-                Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else if (playButton.getLabel().equals("Play")) {
 
@@ -814,6 +812,7 @@ public class UI extends javax.swing.JFrame {
     private void searchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextFieldActionPerformed
     }//GEN-LAST:event_searchTextFieldActionPerformed
 
+    
     private void repeatButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_repeatButtonActionPerformed
 
     }//GEN-LAST:event_repeatButtonActionPerformed
@@ -828,16 +827,20 @@ public class UI extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void libraryTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_libraryTableMouseClicked
+
     }//GEN-LAST:event_libraryTableMouseClicked
 
     private void playPopupMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playPopupMenuItemActionPerformed
         int[] rows = libraryTable.getSelectedRows();
         String id = libraryTable.getValueAt(rows[0], 0).toString();
         try {
+            next=rows[0]+1;
+            if(next==libraryTable.getRowCount()) {
+            
+                next=0;
+            }
             musicChangeOver(Integer.parseInt(id));
-        } catch (SQLException ex) {
-            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (SQLException | InterruptedException ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_playPopupMenuItemActionPerformed
@@ -930,9 +933,7 @@ public class UI extends javax.swing.JFrame {
         try {
             musicChangeOver(Integer.parseInt(id));
 
-        } catch (SQLException ex) {
-            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (SQLException | InterruptedException ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_playQueuePopupMenuItemMouseReleased
@@ -945,7 +946,7 @@ public class UI extends javax.swing.JFrame {
 
             try {
                 dbengine.popQueue(Integer.parseInt(id));
-                
+
 
             } catch (SQLException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
@@ -955,44 +956,7 @@ public class UI extends javax.swing.JFrame {
     }//GEN-LAST:event_removeQueuePopupMenuItemActionPerformed
 
     private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
-
-        if (evt.getKeyChar() == ' ') {
-            if (seekBar.getValue() == 0) {
-                try {
-                    playFinallybyCheckingShuffleRepeat();
-                } catch (SQLException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    try {
-                        musicChangeOver(Integer.parseInt(libraryTable.getValueAt(0, 0).toString()));//what does the fox say? change this ti the first playable song!
-                    } catch (SQLException ex) {
-                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            } else if (playButton.getLabel().equals("Play")) {
-
-                playButton.setLabel("Pause");
-                try {
-                    me.play();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            } else {
-                playButton.setLabel("Play");
-                try {
-                    me.pause();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                t1.stop();
-            }
-            t1.start();
-        }
+    
     }//GEN-LAST:event_formKeyReleased
 
     private void previousButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_previousButtonActionPerformed
@@ -1001,18 +965,16 @@ public class UI extends javax.swing.JFrame {
             int trackid = historyStack.pop();
 
             musicChangeOver(trackid);
-        } catch (SQLException ex) {
+        } catch (SQLException | InterruptedException ex) {
             Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         } catch (EmptyStackException e) {
-        } catch (InterruptedException ex) {
-            Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_previousButtonActionPerformed
 
     private void fileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileChooserActionPerformed
         System.out.println(fileChooser.getSelectedFile().getAbsolutePath());
-        
+
     }//GEN-LAST:event_fileChooserActionPerformed
 
     /**
@@ -1043,12 +1005,10 @@ public class UI extends javax.swing.JFrame {
             public void run() {
                 try {
                     new UI().setVisible(true);
-                } catch (SQLException ex) {
-                    Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
+                } catch (SQLException | InterruptedException ex) {
                     Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                 }
-               
+
 
             }
         });

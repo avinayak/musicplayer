@@ -340,7 +340,7 @@
                       <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="artistalbumLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="trackNameLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="trackNameLabel" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace pref="18" max="32767" attributes="0"/>
                       <Component id="seekBar" min="-2" pref="488" max="-2" attributes="0"/>
@@ -365,14 +365,14 @@
                       <Component id="previousButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
-                      <Component id="trackNameLabel" min="-2" pref="11" max="-2" attributes="0"/>
+                      <Component id="trackNameLabel" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="artistalbumLabel" min="-2" pref="10" max="-2" attributes="0"/>
                   </Group>
                   <Component id="seekBar" min="-2" pref="35" max="-2" attributes="0"/>
                   <Component id="timeElapsedLabel" min="-2" pref="35" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" pref="16" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" pref="27" max="32767" attributes="0"/>
               <Component id="jSeparator1" min="-2" pref="9" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
@@ -396,7 +396,7 @@
                   </Group>
                   <Component id="jScrollPane2" alignment="0" min="-2" pref="562" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="46" max="32767" attributes="0"/>
+              <EmptySpace pref="50" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -508,7 +508,7 @@
     <Component class="javax.swing.JLabel" name="trackNameLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Cantarell" size="16" style="1"/>
+          <Font name="Cantarell" size="17" style="1"/>
         </Property>
       </Properties>
     </Component>
