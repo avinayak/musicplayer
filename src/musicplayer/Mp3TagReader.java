@@ -33,7 +33,7 @@ public class Mp3TagReader {
 
     public static void main(String[] args) throws IOException, CannotReadException, TagException, ReadOnlyFileException, InvalidAudioFrameException, SQLException {
         // TODO code application logic here
-        Path startingDir = Paths.get("/media/gene/B836564536560532/music");
+        Path startingDir = Paths.get("/media/ASWIN/Songs");
         DBEngine dbengine = new DBEngine();
         ID3v1Tag tag;
         MP3AudioHeader ah;
