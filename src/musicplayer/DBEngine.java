@@ -19,11 +19,11 @@ public class DBEngine {
     PreparedStatement pstLibraryRead, pstLibrarySearch, pstQueueRead;
     Statement stLibraryWrite, stFileRead, stQueueWrite;
     public ResultSet rsLibraryRead, rsLibrarySearch, rsFileRead, rsQueueRead;
-
+    String dbloc="/home/aswin/music.db";
     DBEngine() throws SQLException {
         try {
             Class.forName("org.sqlite.JDBC");
-            conn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            conn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -59,7 +59,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -88,7 +88,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -125,7 +125,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -146,7 +146,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -166,7 +166,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -186,7 +186,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -206,7 +206,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -226,7 +226,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -252,7 +252,7 @@ public class DBEngine {
         Connection lconn = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            lconn = DriverManager.getConnection("jdbc:sqlite:/home/gene/music.db");
+            lconn = DriverManager.getConnection("jdbc:sqlite:"+dbloc);
 
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
